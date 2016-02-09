@@ -33,7 +33,7 @@ module.exports = function(Bookshelf) {
 
           return (alternates.length) ?
             `ON CONFLICT (${conflictor}) ${fragment}` :
-            'ON CONFLICT DO NOTHING RETURNING id';
+            'ON CONFLICT DO NOTHING';
         }).join(', ');
       }
 
