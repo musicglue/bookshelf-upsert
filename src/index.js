@@ -12,7 +12,6 @@ module.exports = function(Bookshelf) {
 
     upsert: Promise.method(function(transaction) {
       const conflictors = this.upsertMetadata.conflictors,
-            returning = this.upsertMetadata.returning,
             model = this;
 
       if (!conflictors) {
@@ -21,37 +20,29 @@ module.exports = function(Bookshelf) {
 
       function buildConflictors(fields, conflictors) {
         return conflictors.map(function(conflictor) {
-          const alternates = _.reject(fields, function(field) {
-            return field === conflictor;
-          });
-
-          const updateStatements = alternates.map(function(field) {
+          const updateStatements = fields.map(function(field) {
             return `${field}=EXCLUDED.${field}`;
           }).join(', ');
 
           const fragment = `DO UPDATE SET ${updateStatements}`;
 
-          return (alternates.length) ?
-            `ON CONFLICT (${conflictor}) ${fragment}` :
-            'ON CONFLICT DO NOTHING';
+          return `ON CONFLICT (${conflictor}) ${fragment}`;
         }).join(', ');
       }
 
       const payload = this.attributes;
       const fields = Object.keys(payload);
 
-      const returnStatement = returning.length ? `RETURNING (${returning.join(', ')})` : '';
       const upsertStatement = `
         INSERT INTO ${this.tableName} (${fields.join(', ')})
         VALUES (${_.times(fields.length, function() { return '?'; }).join(', ')})
         ${buildConflictors(fields, conflictors)}
-        ${returnStatement}`;
+        RETURNING *`;
 
       return transaction
         .raw(upsertStatement, fields.map(function(field) { return payload[field]; }))
         .then(function(response) {
-          model.set(response.rows[0]);
-          return model;
+          return model.set(response.rows[0]);
         });
     }),
   });
