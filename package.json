@@ -1,0 +1,29 @@
+{
+  "name": "bookshelf-upsert",
+  "version": "0.0.1",
+  "description": "PG 9.5 UPSERT functionality for Bookshelf.js",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "babel -d lib/ src/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/musicglue/bookshelf-upsert.git"
+  },
+  "author": "Music Glue",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/musicglue/bookshelf-upsert/issues"
+  },
+  "homepage": "https://github.com/musicglue/bookshelf-upsert#readme",
+  "devDependencies": {
+    "knex": "<0.10.0"
+  },
+  "peerDependencies": {
+    "bookshelf": "~0.9.1"
+  },
+  "dependencies": {
+    "bluebird": "^2.9.4"
+  }
+}
