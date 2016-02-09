@@ -16,34 +16,28 @@ module.exports = function(Bookshelf) {
             model = this;
 
       if (!conflictors) {
-        console.log(JSON.stringify(this, null, 4));
         throw new Error('Cannot upsert without uniqueness constraints');
       }
 
       function buildConflictors(fields, conflictors) {
         return conflictors.map(function(conflictor) {
-          const alternates = _.reject(fields, function(field) {
-            return field === conflictor
+          const alternates = _.select(fields, function(field) {
+            return field !== conflictor;
           });
 
-          const updateStatements = _.compact(fields.map(function(field) {
-            if (field === conflictor) { return null; }
+          const updateStatements = alternates.map(function(field) {
             return `${field}=EXCLUDED.${field}`;
-          })).join(', ');
+          }).join(', ');
 
           const returnStatement = (returning.length)
             ? `RETURNING (${returning.join(', ')})`
             : '';
 
-          const fragment = Bookshelf.knex
-            .raw(`DO UPDATE SET ${updateStatements} ${returnStatement}`)
-            .toString();
+          const fragment = `DO UPDATE SET ${updateStatements} ${returnStatement}`;
 
-          if (alternates.length) {
-            return `ON CONFLICT (${conflictor}) ${fragment}`;
-          }
-
-          return 'ON CONFLICT DO NOTHING RETURNING id';
+          return (alternates.length) ?
+            `ON CONFLICT (${conflictor}) ${fragment}` :
+            'ON CONFLICT DO NOTHING RETURNING id';
         }).join(', ');
       }
 
@@ -51,10 +45,9 @@ module.exports = function(Bookshelf) {
       const fields = Object.keys(payload);
 
       const upsertStatement = `
-      INSERT INTO ${this.tableName} (${fields.join(', ')})
-      VALUES (${fields.map(function(field) { return '?' }).join(', ')})
-      ${buildConflictors(fields, conflictors)}
-      `;
+        INSERT INTO ${this.tableName} (${fields.join(', ')})
+        VALUES (${_.times(fields.length, function() { return '?'; }).join(', ')})
+        ${buildConflictors(fields, conflictors)}`;
 
       return transaction
         .raw(upsertStatement, fields.map(function(field) { return payload[field]; }))
