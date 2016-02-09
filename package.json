@@ -24,6 +24,7 @@
     "bookshelf": "~0.9.1"
   },
   "dependencies": {
-    "bluebird": "^2.9.4"
+    "bluebird": "^2.9.4",
+    "lodash": "^4.3.0"
   }
 }
