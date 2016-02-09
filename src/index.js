@@ -29,11 +29,7 @@ module.exports = function(Bookshelf) {
             return `${field}=EXCLUDED.${field}`;
           }).join(', ');
 
-          const returnStatement = (returning.length)
-            ? `RETURNING (${returning.join(', ')})`
-            : '';
-
-          const fragment = `DO UPDATE SET ${updateStatements} ${returnStatement}`;
+          const fragment = `DO UPDATE SET ${updateStatements}`;
 
           return (alternates.length) ?
             `ON CONFLICT (${conflictor}) ${fragment}` :
@@ -44,10 +40,12 @@ module.exports = function(Bookshelf) {
       const payload = this.attributes;
       const fields = Object.keys(payload);
 
+      const returnStatement = returning.length ? `RETURNING (${returning.join(', ')})` : '';
       const upsertStatement = `
         INSERT INTO ${this.tableName} (${fields.join(', ')})
         VALUES (${_.times(fields.length, function() { return '?'; }).join(', ')})
-        ${buildConflictors(fields, conflictors)}`;
+        ${buildConflictors(fields, conflictors)}
+        ${returnStatement}`;
 
       return transaction
         .raw(upsertStatement, fields.map(function(field) { return payload[field]; }))
