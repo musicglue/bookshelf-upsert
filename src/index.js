@@ -21,8 +21,8 @@ module.exports = function(Bookshelf) {
 
       function buildConflictors(fields, conflictors) {
         return conflictors.map(function(conflictor) {
-          const alternates = _.select(fields, function(field) {
-            return field !== conflictor;
+          const alternates = _.reject(fields, function(field) {
+            return field === conflictor;
           });
 
           const updateStatements = alternates.map(function(field) {
