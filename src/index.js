@@ -12,6 +12,7 @@ module.exports = function(Bookshelf) {
 
     upsert: Promise.method(function(transaction) {
       const conflictors = this.upsertMetadata.conflictors,
+            conflictCondition = this.upsertMetadata.condition,
             model = this;
 
       if (!conflictors) {
@@ -25,8 +26,8 @@ module.exports = function(Bookshelf) {
           }).join(', ');
 
           const fragment = `DO UPDATE SET ${updateStatements}`;
-
-          return `ON CONFLICT (${conflictor}) ${fragment}`;
+          const clause = conflictCondition ? `WHERE ${conflictCondition}` : '';
+          return `ON CONFLICT (${conflictor}) ${fragment} ${clause}`;
         }).join(', ');
       }
 
