@@ -1,6 +1,6 @@
 {
   "name": "bookshelf-upsert",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "PG 9.5 UPSERT functionality for Bookshelf.js",
   "main": "src/index.js",
   "scripts": {
