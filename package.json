@@ -21,7 +21,7 @@
     "knex": "<0.10.0"
   },
   "peerDependencies": {
-    "bookshelf": "~0.9.1"
+    "bookshelf": "^0.10.0"
   },
   "dependencies": {
     "bluebird": "^2.9.4"
